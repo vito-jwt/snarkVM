@@ -164,7 +164,7 @@ impl<N: Network> CoinbasePuzzle<N> {
         address: Address<N>,
         nonce: u64,
         minimum_proof_target: Option<u64>,
-        gpu_index: u64,
+        gpu_index:u64,
     ) -> Result<ProverSolution<N>> {
         // Retrieve the coinbase proving key.
         let pk = match self {

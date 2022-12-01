@@ -370,7 +370,7 @@ impl<F: FftField> EvaluationDomain<F> {
         })
     }
 
-    pub(crate) fn in_order_fft_in_place<T: DomainCoeff<F>>(&self, x_s: &mut [T]) {
+    pub(crate) fn in_order_fft_in_place<T: DomainCoeff<Fr>>(&self, x_s: &mut [T]) {
         #[cfg(all(feature = "cuda", target_arch = "x86_64"))]
         // SNP TODO: how to set threshold and check that the type is Fr
         if self.size >= 32 && std::mem::size_of::<T>() == 32 {
@@ -405,7 +405,7 @@ impl<F: FftField> EvaluationDomain<F> {
             x_s.extend(core::iter::repeat(T::zero()).take(self.size() - x_s.len()));
         }
         if snarkvm_cuda::NTT::<Fr>(
-            self.size,
+            self.size(),
             &mut x_s,
             snarkvm_cuda::NTTInputOutputOrder::NN,
             snarkvm_cuda::NTTDirection::Forward,
