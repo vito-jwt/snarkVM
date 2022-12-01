@@ -164,7 +164,7 @@ impl<N: Network> CoinbasePuzzle<N> {
         address: Address<N>,
         nonce: u64,
         minimum_proof_target: Option<u64>,
-        gpu_index:u64,
+        //gpu_index:u64,
     ) -> Result<ProverSolution<N>> {
         // Retrieve the coinbase proving key.
         let pk = match self {
@@ -175,7 +175,7 @@ impl<N: Network> CoinbasePuzzle<N> {
         let polynomial = Self::prover_polynomial(epoch_challenge, address, nonce)?;
 
         let product_evaluations = {
-            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc_cuda(&polynomial,gpu_index);
+            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc(&polynomial, &pk.fft_precomputation);
             let product_evaluations = pk.product_domain.mul_polynomials_in_evaluation_domain(
                 &polynomial_evaluations,
                 &epoch_challenge.epoch_polynomial_evaluations().evaluations,
