@@ -255,7 +255,7 @@ impl<E: PairingEngine> KZG10<E> {
         }
 
         let mut randomness = KZGRandomness::empty();
-        let  rz_commitement :mut KZGCommitment<E>;
+        let mut  rz_commitement :KZGCommitment<E>;
         for i in 1..1000{
             if let Some(hiding_degree) = hiding_bound {
                 let mut rng = rng.ok_or(PCError::MissingRng)?;

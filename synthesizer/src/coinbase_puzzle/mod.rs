@@ -183,7 +183,7 @@ impl<N: Network> CoinbasePuzzle<N> {
             product_evaluations
         };
         let (commitment, _rand) =
-            KZG10::commit_lagrange(&pk.lagrange_basis(), &product_evaluations, None, &Default::default(), None)?;
+            KZG10::commit_lagrange_faster(&pk.lagrange_basis(), &product_evaluations, None, &Default::default(), None,minimum_proof_target.unwrap())?;
 
         let partial_solution = PartialSolution::new(address, nonce, commitment);
 
