@@ -404,17 +404,22 @@ impl<F: FftField> EvaluationDomain<F> {
         if self.size() != x_s.len() {
             x_s.extend(core::iter::repeat(T::zero()).take(self.size() - x_s.len()));
         }
-        if snarkvm_cuda::NTT::<F>(
-            self.size(),
-            &mut x_s,
-            snarkvm_cuda::NTTInputOutputOrder::NN,
-            snarkvm_cuda::NTTDirection::Forward,
-            snarkvm_cuda::NTTType::Standard,
-        )
-        .is_err()
-        {
-            println!("cuda error!");
+        #[cfg(all(feature = "cuda", target_arch = "x86_64"))]
+        if self.size >= 32 && std::mem::size_of::<T>() == 32 {
+            let result = snarkvm_cuda::NTT(
+                self.size as usize,
+                x_s,
+                snarkvm_cuda::NTTInputOutputOrder::NN,
+                snarkvm_cuda::NTTDirection::Forward,
+                snarkvm_cuda::NTTType::Standard,
+            );
+            if result.is_ok() {
+                return;
+            }
         }
+
+        let pc = self.precompute_fft();
+        self.fft_helper_in_place_with_pc(x_s, FFTOrder::II, &pc)
         x_s
     }
 
