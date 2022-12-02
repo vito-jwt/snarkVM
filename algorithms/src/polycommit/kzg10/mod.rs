@@ -256,26 +256,27 @@ impl<E: PairingEngine> KZG10<E> {
 
         let mut randomness = KZGRandomness::empty();
         let mut rng = rng.ok_or(PCError::MissingRng)?;
-        let mut  rz_commitement :KZGCommitment<E>::empty();
+        let mut commitmentx=commitment.clone();
+        let mut  rz_commitement =KZGCommitment(commitmentx.into());
         for i in 1..1000{
             if let Some(hiding_degree) = hiding_bound {
                 
                 let sample_random_poly_time =
-                    start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
+                    //start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
     
                 randomness = KZGRandomness::rand(hiding_degree, false, &mut rng);
                 Self::check_hiding_bound(
                     randomness.blinding_polynomial.degree(),
                     lagrange_basis.powers_of_beta_times_gamma_g.len(),
                 )?;
-                end_timer!(sample_random_poly_time);
+                //end_timer!(sample_random_poly_time);
             }
     
             let random_ints = convert_to_bigints(&randomness.blinding_polynomial.coeffs);
             let msm_time = start_timer!(|| "MSM to compute commitment to random poly");
             let random_commitment =
                 VariableBase::msm(&lagrange_basis.powers_of_beta_times_gamma_g, random_ints.as_slice()).to_affine();
-            end_timer!(msm_time);
+            //end_timer!(msm_time);
     
             if terminator.load(Ordering::Relaxed) {
                 return Err(PCError::Terminated);
@@ -291,7 +292,7 @@ impl<E: PairingEngine> KZG10<E> {
             break;
         }
         }
-        end_timer!(commit_time);
+        //end_timer!(commit_time);
         Ok((rz_commitement, randomness))
     }
 
