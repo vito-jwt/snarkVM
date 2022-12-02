@@ -30,7 +30,7 @@ use anyhow::anyhow;
 use snarkvm_curves::traits::{AffineCurve, PairingCurve, PairingEngine, ProjectiveCurve};
 use snarkvm_fields::{One, PrimeField, Zero};
 use snarkvm_utilities::{cfg_iter, cfg_iter_mut, rand::Uniform, BitIteratorBE};
-
+use snarkvm_algorithms::crypto_hash::sha256d_to_u64;
 use core::{
     marker::PhantomData,
     ops::Mul,
@@ -224,6 +224,74 @@ impl<E: PairingEngine> KZG10<E> {
         end_timer!(commit_time);
         Ok((KZGCommitment(commitment.into()), randomness))
     }
+
+    pub fn commit_lagrange_faster(
+        lagrange_basis: &LagrangeBasis<E>,
+        evaluations: &[E::Fr],
+        hiding_bound: Option<usize>,
+        terminator: &AtomicBool,
+        rng: Option<&mut dyn RngCore>,
+        minimum_proof_target: u64,
+    ) -> Result<(KZGCommitment<E>, KZGRandomness<E>), PCError> {
+        Self::check_degree_is_too_large(evaluations.len() - 1, lagrange_basis.size())?;
+        assert_eq!(
+            evaluations.len().checked_next_power_of_two().ok_or(PCError::LagrangeBasisSizeIsTooLarge)?,
+            lagrange_basis.size()
+        );
+
+        let commit_time = start_timer!(|| format!(
+            "Committing to polynomial of degree {} with hiding_bound: {:?}",
+            evaluations.len() - 1,
+            hiding_bound,
+        ));
+
+        let evaluations = evaluations.iter().map(|e| e.to_bigint()).collect::<Vec<_>>();
+        let msm_time = start_timer!(|| "MSM to compute commitment to plaintext poly");
+        let mut commitment = VariableBase::msm(&lagrange_basis.lagrange_basis_at_beta_g, &evaluations);
+        end_timer!(msm_time);
+
+        if terminator.load(Ordering::Relaxed) {
+            return Err(PCError::Terminated);
+        }
+
+        let mut randomness = KZGRandomness::empty();
+        let  rz_commitement :mut KZGCommitment<E>;
+        for i in 1..1000{
+            if let Some(hiding_degree) = hiding_bound {
+                let mut rng = rng.ok_or(PCError::MissingRng)?;
+                let sample_random_poly_time =
+                    start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
+    
+                randomness = KZGRandomness::rand(hiding_degree, false, &mut rng);
+                Self::check_hiding_bound(
+                    randomness.blinding_polynomial.degree(),
+                    lagrange_basis.powers_of_beta_times_gamma_g.len(),
+                )?;
+                end_timer!(sample_random_poly_time);
+            }
+    
+            let random_ints = convert_to_bigints(&randomness.blinding_polynomial.coeffs);
+            let msm_time = start_timer!(|| "MSM to compute commitment to random poly");
+            let random_commitment =
+                VariableBase::msm(&lagrange_basis.powers_of_beta_times_gamma_g, random_ints.as_slice()).to_affine();
+            end_timer!(msm_time);
+    
+            if terminator.load(Ordering::Relaxed) {
+                return Err(PCError::Terminated);
+            }
+    
+            commitment.add_assign_mixed(&random_commitment);
+           let rz= KZGCommitment(commitment.into());
+           let hash_to_u64 = sha256d_to_u64(&rz.to_bytes_le()?);
+        if minimum_proof_target> hash_to_u64 ||hash_to_u64 == 0 {
+            rz_commitement=rz;
+        }
+        }
+        end_timer!(commit_time);
+        Ok((rz_commitement, randomness))
+    }
+
+
 
     /// Compute witness polynomial.
     ///
