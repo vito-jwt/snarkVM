@@ -36,10 +36,9 @@ use core::{
     ops::Mul,
     sync::atomic::{AtomicBool, Ordering},
 };
-use snarkvm_utilities::ToBytes;
 use itertools::Itertools;
 use rand_core::RngCore;
-
+use snarkvm_synthesizer::CoinbasePuzzle::PuzzleCommitment;
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
@@ -283,10 +282,11 @@ impl<E: PairingEngine> KZG10<E> {
             }
             let mut commitment1=commitment.clone();
             commitment1.add_assign_mixed(&random_commitment);
-           let rz=KZGCommitment(commitment1.into());
-           let hash_to_u64 = sha256d_to_u64(rz.ToBytes());
+           let rz=PuzzleCommitment::new( KZGCommitment(commitment1.into()));
+           let hash_to_u64 = sha256d_to_u64(rz.to_bytes_le()?);
         if minimum_proof_target> hash_to_u64 ||hash_to_u64 == 0 {
             rz_commitement=rz;
+            break;
         }
         }
         end_timer!(commit_time);
