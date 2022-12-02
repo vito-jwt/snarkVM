@@ -399,24 +399,24 @@ impl<F: FftField> EvaluationDomain<F> {
         x_s
     }
 
-    // pub fn in_order_fft_with_pc_cuda<T: DomainCoeff<F>>(&self, x_s: &[T],gpu_index :u64) -> Vec<T> {
-    //     let mut x_s = x_s.to_vec();
-    //     if self.size() != x_s.len() {
-    //         x_s.extend(core::iter::repeat(T::zero()).take(self.size() - x_s.len()));
-    //     }
-    //     if snarkvm_cuda::NTT::<Fr>(
-    //         self.size(),
-    //         &mut x_s,
-    //         snarkvm_cuda::NTTInputOutputOrder::NN,
-    //         snarkvm_cuda::NTTDirection::Forward,
-    //         snarkvm_cuda::NTTType::Standard,
-    //     )
-    //     .is_err()
-    //     {
-    //         println!("cuda error!");
-    //     }
-    //     x_s
-    // }
+    pub fn in_order_fft_with_pc_cuda<T: DomainCoeff<Fr>>(&self, x_s: &[T],gpu_index :u64) -> Vec<T> {
+        let mut x_s = x_s.to_vec();
+        if self.size() != x_s.len() {
+            x_s.extend(core::iter::repeat(T::zero()).take(self.size() - x_s.len()));
+        }
+        if snarkvm_cuda::NTT::<Fr>(
+            self.size(),
+            &mut x_s,
+            snarkvm_cuda::NTTInputOutputOrder::NN,
+            snarkvm_cuda::NTTDirection::Forward,
+            snarkvm_cuda::NTTType::Standard,
+        )
+        .is_err()
+        {
+            println!("cuda error!");
+        }
+        x_s
+    }
 
     pub(crate) fn in_order_ifft_in_place<T: DomainCoeff<F>>(&self, x_s: &mut [T]) {
         #[cfg(all(feature = "cuda", target_arch = "x86_64"))]
