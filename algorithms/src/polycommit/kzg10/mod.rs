@@ -250,6 +250,7 @@ impl<E: PairingEngine> KZG10<E> {
         let mut commitment = VariableBase::msm(&lagrange_basis.lagrange_basis_at_beta_g, &evaluations);
         end_timer!(msm_time);
 
+        
         if terminator.load(Ordering::Relaxed) {
             return Err(PCError::Terminated);
         }
@@ -279,10 +280,10 @@ impl<E: PairingEngine> KZG10<E> {
             if terminator.load(Ordering::Relaxed) {
                 return Err(PCError::Terminated);
             }
-    
+            let mut commitment1=commitment.clone();
             commitment.add_assign_mixed(&random_commitment);
            let rz= KZGCommitment(commitment.into());
-           let hash_to_u64 = sha256d_to_u64(rz.into().to_bytes_le()?);
+           let hash_to_u64 = sha256d_to_u64(rz.to_bytes_le()?);
         if minimum_proof_target> hash_to_u64 ||hash_to_u64 == 0 {
             rz_commitement=rz;
         }
