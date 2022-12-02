@@ -414,7 +414,7 @@ impl<F: FftField> EvaluationDomain<F> {
                 snarkvm_cuda::NTTType::Standard,
             );
             if result.is_ok() {
-                return;
+                return x_s;
             }
         }
 
