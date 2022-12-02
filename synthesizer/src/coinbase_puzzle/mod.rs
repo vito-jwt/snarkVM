@@ -188,13 +188,13 @@ impl<N: Network> CoinbasePuzzle<N> {
         let partial_solution = PartialSolution::new(address, nonce, commitment);
 
         // Check that the minimum target is met.
-        if let Some(minimum_target) = minimum_proof_target {
-            let proof_target = partial_solution.to_target()?;
-            ensure!(
-                proof_target >= minimum_target,
-                "Prover solution was below the necessary proof target ({proof_target} < {minimum_target})"
-            );
-        }
+        // if let Some(minimum_target) = minimum_proof_target {
+        //     let proof_target = partial_solution.to_target()?;
+        //     ensure!(
+        //         proof_target >= minimum_target,
+        //         "Prover solution was below the necessary proof target ({proof_target} < {minimum_target})"
+        //     );
+        // }
 
         let point = hash_commitment(&commitment)?;
         let product_eval_at_point = polynomial.evaluate(point) * epoch_challenge.epoch_polynomial().evaluate(point);
