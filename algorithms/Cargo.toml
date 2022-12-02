@@ -48,11 +48,6 @@ path = "../curves"
 version = "0.9.8"
 default-features = false
 
-[dependencies.snarkvm-synthesizer]
-path = "../synthesizer"
-version = "0.9.8"
-default-features = false
-
 [dependencies.snarkvm-fields]
 path = "../fields"
 version = "0.9.8"
