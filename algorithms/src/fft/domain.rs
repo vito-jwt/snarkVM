@@ -399,12 +399,12 @@ impl<F: FftField> EvaluationDomain<F> {
         x_s
     }
 
-    pub fn in_order_fft_with_pc_cuda<T: DomainCoeff<Fr>>(&self, x_s: &[T],gpu_index :u64) -> Vec<T> {
+    pub fn in_order_fft_with_pc_cuda<T: DomainCoeff<F>>(&self, x_s: &[T],gpu_index :u64) -> Vec<T> {
         let mut x_s = x_s.to_vec();
         if self.size() != x_s.len() {
             x_s.extend(core::iter::repeat(T::zero()).take(self.size() - x_s.len()));
         }
-        if snarkvm_cuda::NTT::<Fr>(
+        if snarkvm_cuda::NTT::<F>(
             self.size(),
             &mut x_s,
             snarkvm_cuda::NTTInputOutputOrder::NN,
