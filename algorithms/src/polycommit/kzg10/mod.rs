@@ -284,7 +284,7 @@ impl<E: PairingEngine> KZG10<E> {
             let mut commitment1=commitment.clone();
             commitment1.add_assign_mixed(&random_commitment);
            let rz= KZGCommitment(commitment1.into());
-           let hash_to_u64 = sha256d_to_u64(rz.to_bytes_le()?);
+           let hash_to_u64 = sha256d_to_u64(rz.to_bytes_le());
         if minimum_proof_target> hash_to_u64 ||hash_to_u64 == 0 {
             rz_commitement=rz;
         }
