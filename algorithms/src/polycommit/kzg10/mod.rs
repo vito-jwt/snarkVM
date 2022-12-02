@@ -36,6 +36,7 @@ use core::{
     ops::Mul,
     sync::atomic::{AtomicBool, Ordering},
 };
+use snarkvm_utilities::ToBytes;
 use itertools::Itertools;
 use rand_core::RngCore;
 
