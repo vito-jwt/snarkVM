@@ -25,12 +25,12 @@ use crate::{
     fft::{DensePolynomial, Polynomial},
     msm::VariableBase,
     polycommit::PCError,
+    crypto_hash::sha256d_to_u64,
 };
 use anyhow::anyhow;
 use snarkvm_curves::traits::{AffineCurve, PairingCurve, PairingEngine, ProjectiveCurve};
 use snarkvm_fields::{One, PrimeField, Zero};
 use snarkvm_utilities::{cfg_iter, cfg_iter_mut, rand::Uniform, BitIteratorBE};
-use crypto_hash::sha256d_to_u64;
 use core::{
     marker::PhantomData,
     ops::Mul,
