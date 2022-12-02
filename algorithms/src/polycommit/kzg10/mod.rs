@@ -255,10 +255,11 @@ impl<E: PairingEngine> KZG10<E> {
         }
 
         let mut randomness = KZGRandomness::empty();
-        let mut  rz_commitement :KZGCommitment<E>;
+        let mut rng = rng.ok_or(PCError::MissingRng)?;
+        let mut  rz_commitement :KZGCommitment<E>::empty();
         for i in 1..1000{
             if let Some(hiding_degree) = hiding_bound {
-                let mut rng = rng.ok_or(PCError::MissingRng)?;
+                
                 let sample_random_poly_time =
                     start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
     
