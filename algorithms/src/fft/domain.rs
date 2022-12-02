@@ -408,7 +408,7 @@ impl<F: FftField> EvaluationDomain<F> {
         if self.size >= 32 && std::mem::size_of::<T>() == 32 {
             let result = snarkvm_cuda::NTT(
                 self.size as usize,
-                &x_s,
+                &mut x_s,
                 snarkvm_cuda::NTTInputOutputOrder::NN,
                 snarkvm_cuda::NTTDirection::Forward,
                 snarkvm_cuda::NTTType::Standard,
