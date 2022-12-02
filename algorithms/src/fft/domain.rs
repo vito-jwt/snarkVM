@@ -419,7 +419,7 @@ impl<F: FftField> EvaluationDomain<F> {
         }
 
         let pc = self.precompute_fft();
-        self.fft_helper_in_place_with_pc(x_s, FFTOrder::II, &pc)
+        self.fft_helper_in_place_with_pc(&mut x_s, FFTOrder::II, &pc)
         x_s
     }
 
