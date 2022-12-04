@@ -175,7 +175,8 @@ impl<N: Network> CoinbasePuzzle<N> {
         let polynomial = Self::prover_polynomial(epoch_challenge, address, nonce)?;
 
         let product_evaluations = {
-            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc_cuda(&polynomial,gpu_index);
+            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc(&polynomial, &pk.fft_precomputation);
+            //let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc_cuda(&polynomial,gpu_index);
             let product_evaluations = pk.product_domain.mul_polynomials_in_evaluation_domain(
                 &polynomial_evaluations,
                 &epoch_challenge.epoch_polynomial_evaluations().evaluations,

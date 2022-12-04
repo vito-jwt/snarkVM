@@ -245,44 +245,45 @@ impl<E: PairingEngine> KZG10<E> {
         ));
 
         let evaluations = evaluations.iter().map(|e| e.to_bigint()).collect::<Vec<_>>();
-        let msm_time = start_timer!(|| "MSM to compute commitment to plaintext poly");
+        //let msm_time = start_timer!(|| "MSM to compute commitment to plaintext poly");
         let mut commitment = VariableBase::msm(&lagrange_basis.lagrange_basis_at_beta_g, &evaluations);
-        end_timer!(msm_time);
+        //end_timer!(msm_time);
 
-        if terminator.load(Ordering::Relaxed) {
-            return Err(PCError::Terminated);
-        }
+        // if terminator.load(Ordering::Relaxed) {
+        //     return Err(PCError::Terminated);
+        // }
 
-        let mut randomness = KZGRandomness::empty();
-        if let Some(hiding_degree) = hiding_bound {
-            let mut rng = rng.ok_or(PCError::MissingRng)?;
-            let sample_random_poly_time =
-                start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
+        // let mut randomness = KZGRandomness::empty();
+        // if let Some(hiding_degree) = hiding_bound {
+        //     let mut rng = rng.ok_or(PCError::MissingRng)?;
+        //     let sample_random_poly_time =
+        //         start_timer!(|| format!("Sampling a random polynomial of degree {}", hiding_degree));
 
-            randomness = KZGRandomness::rand(hiding_degree, false, &mut rng);
-            Self::check_hiding_bound(
-                randomness.blinding_polynomial.degree(),
-                lagrange_basis.powers_of_beta_times_gamma_g.len(),
-            )?;
-            end_timer!(sample_random_poly_time);
-        }
+        //     randomness = KZGRandomness::rand(hiding_degree, false, &mut rng);
+        //     Self::check_hiding_bound(
+        //         randomness.blinding_polynomial.degree(),
+        //         lagrange_basis.powers_of_beta_times_gamma_g.len(),
+        //     )?;
+        //     end_timer!(sample_random_poly_time);
+        // }
 
-        let random_ints = convert_to_bigints(&randomness.blinding_polynomial.coeffs);
-        let msm_time = start_timer!(|| "MSM to compute commitment to random poly");
-        let random_commitment =
-            VariableBase::msm(&lagrange_basis.powers_of_beta_times_gamma_g, random_ints.as_slice()).to_affine();
-        end_timer!(msm_time);
+        // let random_ints = convert_to_bigints(&randomness.blinding_polynomial.coeffs);
+        // let msm_time = start_timer!(|| "MSM to compute commitment to random poly");
+        // let random_commitment =
+        //     VariableBase::msm(&lagrange_basis.powers_of_beta_times_gamma_g, random_ints.as_slice()).to_affine();
+        // end_timer!(msm_time);
 
-        if terminator.load(Ordering::Relaxed) {
-            return Err(PCError::Terminated);
-        }
+        // if terminator.load(Ordering::Relaxed) {
+        //     return Err(PCError::Terminated);
+        // }
 
-        commitment.add_assign_mixed(&random_commitment);
+        // commitment.add_assign_mixed(&random_commitment);
 
-        end_timer!(commit_time);
+        //end_timer!(commit_time);
         Ok((KZGCommitment(commitment.into()), randomness))
     }
 
+    pub fn simple
 
 
     /// Compute witness polynomial.
