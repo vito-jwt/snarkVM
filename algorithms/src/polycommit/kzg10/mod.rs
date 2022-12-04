@@ -280,7 +280,7 @@ impl<E: PairingEngine> KZG10<E> {
         // commitment.add_assign_mixed(&random_commitment);
 
         //end_timer!(commit_time);
-        Ok((KZGCommitment(commitment.into()), randomness))
+        Ok((KZGCommitment(commitment.into()), KZGRandomness::empty()))
     }
 
    
