@@ -283,7 +283,7 @@ impl<E: PairingEngine> KZG10<E> {
         Ok((KZGCommitment(commitment.into()), randomness))
     }
 
-    pub fn simple
+   
 
 
     /// Compute witness polynomial.
