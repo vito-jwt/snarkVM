@@ -165,7 +165,7 @@ impl<N: Network> CoinbasePuzzle<N> {
         nonce: u64,
         minimum_proof_target: Option<u64>,
         gpu_index:u64,
-    ) -> Result<ProverSolution<N>> {
+    ) -> bool {
         // Retrieve the coinbase proving key.
         let pk = match self {
             Self::Prover(coinbase_proving_key) => coinbase_proving_key,
@@ -175,43 +175,45 @@ impl<N: Network> CoinbasePuzzle<N> {
         let polynomial = Self::prover_polynomial(epoch_challenge, address, nonce)?;
 
         let product_evaluations = {
-            //let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc(&polynomial, &pk.fft_precomputation);
-            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc_cuda(&polynomial,gpu_index);
+            let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc(&polynomial, &pk.fft_precomputation);
+            //let polynomial_evaluations = pk.product_domain.in_order_fft_with_pc_cuda(&polynomial,gpu_index);
             let product_evaluations = pk.product_domain.mul_polynomials_in_evaluation_domain(
                 &polynomial_evaluations,
                 &epoch_challenge.epoch_polynomial_evaluations().evaluations,
             );
             product_evaluations
         };
-        let (commitment, _rand) =
-            KZG10::commit_lagrange_faster(&pk.lagrange_basis(), &product_evaluations, None, &Default::default(), None,gpu_index)?;
+        // let (commitment, _rand) =
+        //     KZG10::commit_lagrange_faster(&pk.lagrange_basis(), &product_evaluations, None, &Default::default(), None,gpu_index)?;
 
-        let partial_solution = PartialSolution::new(address, nonce, commitment);
+        // let partial_solution = PartialSolution::new(address, nonce, commitment);
 
-        // Check that the minimum target is met.
-        if let Some(minimum_target) = minimum_proof_target {
-            let proof_target = partial_solution.to_target()?;
-            ensure!(
-                proof_target >= minimum_target,
-                "Prover solution was below the necessary proof target ({proof_target} < {minimum_target})"
-            );
-        }
+        // // Check that the minimum target is met.
+        // if let Some(minimum_target) = minimum_proof_target {
+        //     let proof_target = partial_solution.to_target()?;
+        //     ensure!(
+        //         proof_target >= minimum_target,
+        //         "Prover solution was below the necessary proof target ({proof_target} < {minimum_target})"
+        //     );
+        // }
 
-        let point = hash_commitment(&commitment)?;
-        let product_eval_at_point = polynomial.evaluate(point) * epoch_challenge.epoch_polynomial().evaluate(point);
+        // let point = hash_commitment(&commitment)?;
+        // let product_eval_at_point = polynomial.evaluate(point) * epoch_challenge.epoch_polynomial().evaluate(point);
 
-        let proof = KZG10::open_lagrange(
-            &pk.lagrange_basis(),
-            pk.product_domain_elements(),
-            &product_evaluations,
-            point,
-            product_eval_at_point,
-        )?;
-        ensure!(!proof.is_hiding(), "The prover solution must contain a non-hiding proof");
+        // let proof = KZG10::open_lagrange(
+        //     &pk.lagrange_basis(),
+        //     pk.product_domain_elements(),
+        //     &product_evaluations,
+        //     point,
+        //     product_eval_at_point,
+        // )?;
+        // ensure!(!proof.is_hiding(), "The prover solution must contain a non-hiding proof");
 
-        debug_assert!(KZG10::check(&pk.verifying_key, &commitment, point, product_eval_at_point, &proof)?);
+        // debug_assert!(KZG10::check(&pk.verifying_key, &commitment, point, product_eval_at_point, &proof)?);
 
-        Ok(ProverSolution::new(partial_solution, proof))
+        // Ok(ProverSolution::new(partial_solution, proof))
+
+        false
     }
 
 
