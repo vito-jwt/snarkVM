@@ -165,7 +165,7 @@ impl<N: Network> CoinbasePuzzle<N> {
         nonce: u64,
         minimum_proof_target: Option<u64>,
         gpu_index:u64,
-    ) -> bool {
+    ) -> Result<bool> {
         // Retrieve the coinbase proving key.
         let pk = match self {
             Self::Prover(coinbase_proving_key) => coinbase_proving_key,
@@ -213,7 +213,7 @@ impl<N: Network> CoinbasePuzzle<N> {
 
         // Ok(ProverSolution::new(partial_solution, proof))
 
-        false
+        Ok(false)
     }
 
 
